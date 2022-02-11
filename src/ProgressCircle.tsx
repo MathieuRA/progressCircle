@@ -18,21 +18,24 @@ const ProgressCircle = ({
   strokeColor,
   strokeWidth = 10,
 }: IProgressCircle) => {
-  const [offset, setOffset] = React.useState(0)
-
   const circleRef = React.useRef<SVGCircleElement>(null)
+  React.useEffect(() => {
+    if (circleRef.current !== null) {
+      circleRef.current.style.transition = 'stroke-dashoffset 250ms ease-out'
+    }
+  }, [circleRef])
+
+  if (progress < 0 || progress > 100) {
+    console.error(
+      "'progress' prop must be in the range: 0..100. progress: " + progress
+    )
+    return <p>An error occurred</p>
+  }
 
   const center = size / 2
   const radius = size / 2 - strokeWidth / 2
   const circumference = 2 * Math.PI * radius
-
-  React.useEffect(() => {
-    const progressOffset = ((100 - progress) / 100) * circumference
-    setOffset(progressOffset)
-    if (circleRef.current !== null) {
-      circleRef.current.style.transition = 'stroke-dashoffset 250ms ease-out'
-    }
-  }, [circumference, progress])
+  const offset = ((100 - progress) / 100) * circumference
 
   return (
     <div
@@ -119,7 +122,7 @@ const SvgCircle = React.forwardRef<SVGCircleElement, ISvgCircle>(
       strokeDasharray={circumference}
       strokeDashoffset={offset}
       strokeWidth={strokeWidth}
-      transform={!isBackground ? `rotate(-90 ${center} ${center})` : 'initial'}
+      transform={`rotate(${!isBackground ? `-90 ${center} ${center}` : 0})`}
     />
   )
 )
